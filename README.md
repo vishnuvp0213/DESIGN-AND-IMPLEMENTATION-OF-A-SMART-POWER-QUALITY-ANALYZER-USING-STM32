@@ -8,6 +8,7 @@ The system measures voltage and current signals from the load and calculates par
 The project also includes a power factor correction mechanism that automatically switches capacitor banks when a low power factor condition is detected.
 
 ---
+<img width="638" height="879" alt="Image" src="https://github.com/user-attachments/assets/6d2247f7-2e07-4eb9-a0a8-678569b69417" />
 
 ## Features
 - Real-time measurement of voltage and current
