@@ -85,3 +85,92 @@ After capacitor bank switching:
 - Power factor ≈ 0.830
 
 The slight deviation from the expected value (~0.9) is due to sensor accuracy and measurement limitations.
+
+
+
+
+
+
+## Calibration Procedure
+
+To obtain accurate voltage and current measurements, sensor calibration must be performed before running the main program. The calibration codes are provided in the **calibration** folder of this repository.
+
+Repository Structure
+
+calibration/
+- acs712_midpoint_calibration.ino
+- acs712_irms_calculation.ino
+- zmpt_voltage_calibration.ino
+
+main_code/
+- stm32_power_analyzer.ino
+- esp8266_iot_monitoring.ino
+
+
+Current Sensor Calibration (ACS712)
+
+Two calibration programs are provided to correctly measure current using the ACS712 sensor.
+
+Step 1 – Find ADC Midpoint
+
+Upload the code:
+
+acs712_midpoint_calibration.ino
+
+Purpose:
+This code determines the ADC midpoint value of the ACS712 sensor. The midpoint represents the sensor output when no current is flowing through the sensor.
+
+Procedure:
+1. Connect the ACS712 sensor to the STM32.
+2. Ensure no load current is flowing through the sensor.
+3. Upload the midpoint calibration code.
+4. Open the Serial Monitor.
+5. Note the midpoint ADC value printed in the Serial Monitor.
+
+This midpoint value will be used as the current offset in the next step.
+
+
+Step 2 – Calculate RMS Current
+
+Upload the code:
+
+acs712_irms_calculation.ino
+
+Purpose:
+This code calculates the RMS current using the midpoint value obtained in Step 1.
+
+Procedure:
+1. Insert the midpoint value obtained from Step 1 into the code.
+2. Upload the program to the STM32.
+3. Connect a load to the sensor.
+4. Observe the current value printed in the Serial Monitor.
+5. Compare it with a multimeter or clamp meter and adjust the sensitivity value if necessary.
+
+
+Voltage Sensor Calibration (ZMPT101B)
+
+Voltage calibration is performed using the following code:
+
+zmpt_voltage_calibration.ino
+
+Purpose:
+This code allows adjustment of the voltage calibration constant to match the actual supply voltage.
+
+Procedure:
+1. Upload the voltage calibration code to the STM32.
+2. Measure the actual AC voltage using a multimeter.
+3. Observe the voltage value printed in the Serial Monitor.
+4. Adjust the voltage calibration constant in the code until the measured value matches the multimeter reading.
+
+
+Running the Main System
+
+After completing the calibration process, upload the main project codes.
+
+STM32 Main Code:
+main_code/stm32_power_analyzer.ino
+
+ESP8266 IoT Communication Code:
+main_code/esp8266_iot_monitoring.ino
+
+Once uploaded, the system will perform real-time monitoring including voltage and current measurement, power parameter calculation, harmonic analysis using FFT, THD calculation, OLED display monitoring, and IoT data transmission through ESP8266.
