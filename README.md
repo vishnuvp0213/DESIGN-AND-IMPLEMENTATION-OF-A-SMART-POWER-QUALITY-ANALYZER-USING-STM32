@@ -179,9 +179,9 @@ Once uploaded, the system will perform real-time monitoring including voltage an
 
 
 Team Members
+• T. B. Vishnu Prasad (NSS22EE124)
 • Keerthana C (NSS22EE07)
 • Nandana Narayanan (PKD22EE038)
-• T. B. Vishnu Prasad (NSS22EE124)
 • V. Anand (NSS22EE128)
 
 Department of Electrical and Electronics Engineering
