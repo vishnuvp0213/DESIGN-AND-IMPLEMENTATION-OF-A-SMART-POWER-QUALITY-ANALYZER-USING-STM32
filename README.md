@@ -174,3 +174,16 @@ ESP8266 IoT Communication Code:
 main_code/esp8266_iot_monitoring.ino
 
 Once uploaded, the system will perform real-time monitoring including voltage and current measurement, power parameter calculation, harmonic analysis using FFT, THD calculation, OLED display monitoring, and IoT data transmission through ESP8266.
+
+
+
+
+Team Members
+• Keerthana C (NSS22EE07)
+• Nandana Narayanan (PKD22EE038)
+• T. B. Vishnu Prasad (NSS22EE124)
+• V. Anand (NSS22EE128)
+
+Department of Electrical and Electronics Engineering
+Dr. A. P. J. Abdul Kalam Technological University
+Palakkad, India
