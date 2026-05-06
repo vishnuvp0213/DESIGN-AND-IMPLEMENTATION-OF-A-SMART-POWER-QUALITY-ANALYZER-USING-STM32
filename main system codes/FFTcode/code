@@ -1,0 +1,175 @@
+// ============================================================
+// FFT BASED POWER QUALITY ANALYZER
+// ============================================================
+
+// FFT Arrays
+double vReal[FFT_SIZE], vImag[FFT_SIZE];
+double iReal[FFT_SIZE], iImag[FFT_SIZE];
+
+// FFT Object
+ArduinoFFT<double> FFT = ArduinoFFT<double>(
+    vReal,
+    vImag,
+    FFT_SIZE,
+    2000
+);
+
+// ============================================================
+// SAMPLING AND STORING DATA
+// ============================================================
+
+for (int i = 0; i < FFT_SIZE; i++) {
+
+    // Read ADC Samples
+    float vSample = analogRead(VOLTAGE_PIN);
+    float iSample = analogRead(CURRENT_PIN);
+
+    // Convert ADC to Voltage
+    float v = (vSample - voltageOffsetValue) *
+              VREF / ADC_MAX *
+              voltageCal;
+
+    // Convert ADC to Current
+    float iCurRaw = (iSample - currentOffsetValue) *
+                    voltsPerUnit /
+                    sensitivity;
+
+    // Store Voltage Samples
+    vReal[i] = v;
+    vImag[i] = 0;
+
+    // Store Current Samples
+    iReal[i] = iCurRaw;
+    iImag[i] = 0;
+}
+
+// ============================================================
+// FFT FOR VOLTAGE SIGNAL
+// ============================================================
+
+FFT.windowing(
+    vReal,
+    FFT_SIZE,
+    FFT_WIN_TYP_HAMMING,
+    FFT_FORWARD
+);
+
+FFT.compute(
+    vReal,
+    vImag,
+    FFT_SIZE,
+    FFT_FORWARD
+);
+
+FFT.complexToMagnitude(
+    vReal,
+    vImag,
+    FFT_SIZE
+);
+
+// ============================================================
+// FFT FOR CURRENT SIGNAL
+// ============================================================
+
+FFT.windowing(
+    iReal,
+    FFT_SIZE,
+    FFT_WIN_TYP_HAMMING,
+    FFT_FORWARD
+);
+
+FFT.compute(
+    iReal,
+    iImag,
+    FFT_SIZE,
+    FFT_FORWARD
+);
+
+FFT.complexToMagnitude(
+    iReal,
+    iImag,
+    FFT_SIZE
+);
+
+// ============================================================
+// FUNDAMENTAL FREQUENCY DETECTION
+// ============================================================
+
+int actualFundBin = 6;
+double maxV = 0;
+
+for (int i = 4; i <= 8; i++) {
+
+    if (vReal[i] > maxV) {
+
+        maxV = vReal[i];
+        actualFundBin = i;
+    }
+}
+
+// ============================================================
+// VOLTAGE THD CALCULATION
+// ============================================================
+
+double fundEnergyV = 0;
+
+for (int w = -1; w <= 1; w++) {
+
+    fundEnergyV += pow(
+        vReal[actualFundBin + w],
+        2
+    );
+}
+
+double vFundRMS = sqrt(
+    fundEnergyV / 2.0
+) * 1.01;
+
+double vDist = sqrt(
+    fabs(
+        pow(Vrms, 2) -
+        pow(vFundRMS, 2)
+    )
+);
+
+float vTHD = (
+    vDist / vFundRMS
+) * 100.0;
+
+// ============================================================
+// CURRENT THD + HARMONIC ANALYSIS
+// ============================================================
+
+double fundI = iReal[actualFundBin];
+double sumSqI = 0;
+
+for (int h = 2; h <= 10; h++) {
+
+    int centerBin = actualFundBin * h;
+
+    if (centerBin < (FFT_SIZE / 2) - 1) {
+
+        double iMagSq = 0;
+
+        for (int w = -HARMONIC_WIDTH;
+             w <= HARMONIC_WIDTH;
+             w++) {
+
+            iMagSq += pow(
+                iReal[centerBin + w],
+                2
+            );
+        }
+
+        sumSqI += iMagSq;
+
+        iHarmonics[h] = (
+            sqrt(iMagSq) / fundI
+        ) * 100.0;
+    }
+}
+
+// Final Current THD
+float iTHD = (
+    sqrt(sumSqI) / fundI
+) * 100.0;
